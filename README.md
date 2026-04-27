@@ -22,6 +22,8 @@ success.html
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(30).png)
 view.html
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(31).png)
+admin.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(33).png)
 
 
 ## ✨ Features
