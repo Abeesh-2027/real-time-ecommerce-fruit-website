@@ -3,8 +3,25 @@
 A full-featured, real-time **fruit e-commerce platform** built with Django, MongoDB, and Razorpay. Customers can browse fresh fruits, manage a shopping cart, and checkout with secure online payments — while admins get a powerful dashboard to manage products and orders.
 
 ## Screenshot
+login.html
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(6).png)
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(7).png)
+home.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(22).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(73).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(24).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(25).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(26).png)
+product.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(27).png)
+cart.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(28).png)
+checkout.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(29).png)
+success.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(30).png)
+view.html
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(31).png)
 
 
 ## ✨ Features
