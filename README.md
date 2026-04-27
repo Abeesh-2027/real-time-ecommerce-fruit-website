@@ -4,6 +4,8 @@ A full-featured, real-time **fruit e-commerce platform** built with Django, Mong
 
 ## Screenshot
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(6).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(7).png)
+
 
 ## ✨ Features
 
