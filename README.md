@@ -3,7 +3,7 @@
 A full-featured, real-time **fruit e-commerce platform** built with Django, MongoDB, and Razorpay. Customers can browse fresh fruits, manage a shopping cart, and checkout with secure online payments — while admins get a powerful dashboard to manage products and orders.
 
 ## Screenshot
-![image alt]()
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(6).png)
 
 ## ✨ Features
 
