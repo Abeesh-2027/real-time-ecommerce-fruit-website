@@ -2,6 +2,8 @@
 
 A full-featured, real-time **fruit e-commerce platform** built with Django, MongoDB, and Razorpay. Customers can browse fresh fruits, manage a shopping cart, and checkout with secure online payments — while admins get a powerful dashboard to manage products and orders.
 
+## Screenshot
+![image alt]()
 
 ## ✨ Features
 
