@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruitzone - Products</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --green: #2FAE2E; --green-dark: #239022; --green-light: #e8f8e8; --shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        body { font-family: Arial, sans-serif; background: #f9f9f9; min-height: 100vh; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+        .logo { font-size: 26px; font-weight: bold; color: var(--green); white-space: nowrap; margin-right: 6px; text-decoration: none; }
+        .search-wrap { flex: 1; display: flex; gap: 8px; min-width: 180px; }
+        .search-wrap input { flex: 1; padding: 9px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .search-wrap input:focus { border-color: var(--green); }
+        .btn-search { padding: 9px 18px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; white-space: nowrap; }
+        .btn-search:hover { background: #222; }
+        .nav-right { display: flex; gap: 10px; align-items: center; }
+        .btn-nav { padding: 9px 18px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; white-space: nowrap; text-decoration: none; display: inline-block; }
+        .btn-nav:hover { background: #222; }
+        .btn-cart { position: relative; padding: 9px 18px; background: var(--green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; white-space: nowrap; text-decoration: none; display: inline-block; }
+        .btn-cart:hover { background: var(--green-dark); }
+        .cart-badge { position: absolute; top: -6px; right: -6px; background: #e53935; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center; }
+        .cart-badge.show { display: flex; }
+
+        /* ── NO RESULTS ── */
+        .no-results { text-align: center; padding: 60px 20px; color: #888; font-size: 18px; display: none; }
+        .no-results.show { display: block; }
+
+        /* ── PRODUCTS GRID ── */
+        .products-section { padding: 28px 20px; max-width: 1400px; margin: 0 auto; }
+        .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 36px; }
+
+        /* ── PRODUCT CARD ── */
+        .product-card { background: white; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(47,174,46,0.15); }
+        .card-img { width: 100%; height: 200px; object-fit: cover; background: var(--green-light); }
+        .card-body { padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .card-name { font-size: 18px; font-weight: 700; color: #111; text-align: center; }
+        .card-price { font-size: 14px; color: #555; }
+        .card-price b { color: var(--green); }
+        .btn-add { margin-top: auto; padding: 9px 22px; background: var(--green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s, transform 0.15s; width: 90%; }
+        .btn-add:hover { background: var(--green-dark); }
+        .btn-add.added { background: #555; transform: scale(0.97); }
+
+        /* ── TOAST ── */
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #111; color: white; padding: 12px 26px; border-radius: 30px; font-size: 14px; font-weight: 600; z-index: 9999; transition: transform 0.35s ease, opacity 0.35s; opacity: 0; pointer-events: none; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ── FOOTER ── */
+        footer { text-align: center; padding: 18px; background: black; color: white; font-size: 13px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1100px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 780px) { .products-grid { grid-template-columns: repeat(2, 1fr); } .card-img { height: 160px; } .card-name { font-size: 15px; } }
+        @media (max-width: 500px) { .navbar { padding: 10px 14px; gap: 8px; } .logo { font-size: 20px; } .btn-search { padding: 9px 12px; font-size: 13px; } .btn-cart { padding: 9px 12px; font-size: 13px; } .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .card-img { height: 130px; } .card-name { font-size: 14px; } .btn-add { font-size: 13px; padding: 8px 10px; } }
+        @media (max-width: 340px) { .products-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="{% url 'zone:home' %}">Fruitzone</a>
+    <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search fruits..."
+               onkeydown="if(event.key==='Enter') doSearch()"
+               value="{{ query|default:'' }}">
+        <button class="btn-search" onclick="doSearch()">Search</button>
+    </div>
+    <div class="nav-right">
+        <a class="btn-nav" href="{% url 'zone:home' %}">🏠 Home</a>
+        <a class="btn-nav" href="{% url 'zone:view' %}">📦 Orders</a>
+        <a class="btn-cart" href="{% url 'zone:cart' %}">
+            🛒 Cart
+            <span class="cart-badge" id="cartBadge">0</span>
+        </a>
+    </div>
+</div>
+
+<!-- NO RESULTS -->
+<div class="no-results" id="noResults">
+    😕 No fruits found for "<span id="searchTerm"></span>"
+</div>
+
+<!-- ALL PRODUCTS -->
+<div class="products-section">
+    <div class="products-grid" id="allGrid">
+
+        {% for fruit in fruits %}
+        <div class="product-card" data-name="{{ fruit.name|lower }}">
+            {% if fruit.image %}
+                {# Fruit has an uploaded image — use .url directly #}
+                <img class="card-img"
+                     src="/static/images/{{ fruit.image.url }}"
+                     alt="{{ fruit.name }}"
+                     onerror="this.src='https://placehold.co/400x200/e8f8e8/2FAE2E?text={{ fruit.name|urlencode }}'">
+                <div class="card-body">
+                    <div class="card-name">{{ fruit.name }}</div>
+                    <div class="card-price"><b>₹{{ fruit.price }}</b> / 1kg</div>
+                    <button class="btn-add"
+                         data-name="{{ fruit.name }}"
+                         data-price="{{ fruit.price }}"
+                         data-img="/static/images/{{ fruit.image.url }}"
+                         onclick="addToCart(this, this.dataset.name, this.dataset.price, this.dataset.img)">
+                         Add to Cart
+                    </button>
+                </div>
+            {% else %}
+                {# No uploaded image — use /static/ prefix directly.          #}
+                {# Django's {% static var %} does NOT accept variables,       #}
+                {# so we write the path manually with STATIC_URL = '/static/' #}
+                <img class="card-img"
+                     src="/static/images/{{ fruit.image_file }}"
+                     alt="{{ fruit.name }}"
+                     onerror="this.src='https://placehold.co/400x200/e8f8e8/2FAE2E?text={{ fruit.name|urlencode }}'">
+                <div class="card-body">
+                    <div class="card-name">{{ fruit.name }}</div>
+                    <div class="card-price"><b>₹{{ fruit.price }}</b> / 1kg</div>
+                    <button class="btn-add"
+                         data-name="{{ fruit.name }}"
+                         data-price="{{ fruit.price }}"
+                         data-img="/static/images/{{ fruit.image_file }}"
+                         onclick="addToCart(this, this.dataset.name, this.dataset.price, this.dataset.img)">
+                         Add to Cart
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+
+        {% empty %}
+        {# No DB fruits — show static fallback products #}
+        {% for item in static_products %}
+        <div class="product-card" data-name="{{ item.name|lower }}">
+            <img class="card-img"
+                 src="/static/images/{{ item.image }}"
+                 alt="{{ item.name }}"
+                 onerror="this.src='https://placehold.co/400x200/e8f8e8/2FAE2E?text={{ item.name|urlencode }}'">
+            <div class="card-body">
+                <div class="card-name">{{ item.name }}</div>
+                <div class="card-price"><b>₹{{ item.price }}</b> / 1kg</div>
+                <button class="btn-add"
+                    data-name="{{ item.name }}"
+                    data-price="{{ item.price }}"
+                    data-img="/static/images/{{ item.image }}"
+                    onclick="addToCart(this, this.dataset.name, this.dataset.price, this.dataset.img)">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer><p>&copy; 2026 Fruitzone. All rights reserved.</p></footer>
+
+<script>
+    const CART_KEY = 'fruitzone_cart';
+
+    function getCart() { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
+    function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    function updateBadge() {
+        const cart  = getCart();
+        const total = cart.reduce((sum, i) => sum + i.qty, 0);
+        const badge = document.getElementById('cartBadge');
+        badge.textContent = total;
+        total > 0 ? badge.classList.add('show') : badge.classList.remove('show');
+    }
+
+    function addToCart(btn, name, price, img) {
+        const cart     = getCart();
+        const existing = cart.find(i => i.name === name);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ name, price, img, qty: 1 });
+        }
+        saveCart(cart);
+        updateBadge();
+        btn.textContent = '✓ Added';
+        btn.classList.add('added');
+        setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1200);
+        showToast(`${name} added to cart!`);
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function doSearch() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+        const noRes = document.getElementById('noResults');
+        let found   = 0;
+        cards.forEach(card => {
+            const match = !query || card.getAttribute('data-name').includes(query);
+            card.style.display = match ? '' : 'none';
+            if (match) found++;
+        });
+        if (found === 0 && query) {
+            document.getElementById('searchTerm').textContent = query;
+            noRes.classList.add('show');
+        } else {
+            noRes.classList.remove('show');
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        if (this.value.trim() === '') {
+            document.querySelectorAll('.product-card').forEach(c => { c.style.display = ''; });
+            document.getElementById('noResults').classList.remove('show');
+        } else {
+            doSearch();
+        }
+    });
+
+    updateBadge();
+</script>
+</body>
+</html>

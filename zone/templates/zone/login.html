@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruitzone – Login / Sign Up</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0; font-family: Arial, sans-serif;
+    background-image: url("{% static 'images/back.jpg' %}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex; justify-content: center; align-items: center; height: 100vh;
+}
+.brand { position: absolute; top: 20px; left: 20px; }
+.container { perspective: 1000px; }
+.card {
+    width: 320px; height: 440px; position: relative;
+    transform-style: preserve-3d; transition: transform 0.6s;
+}
+.card.flip { transform: rotateY(180deg); }
+.front, .back {
+    position: absolute; width: 100%; height: 100%;
+    background: white; border-radius: 10px; padding: 28px 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    backface-visibility: hidden;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.back { transform: rotateY(180deg); }
+h2 { margin-bottom: 15px; text-align: center; color: #111; }
+input {
+    width: 100%; padding: 9px; margin: 6px 0;
+    border-radius: 5px; border: 1px solid #ccc; outline: none; font-size: 14px;
+}
+input:focus { border-color: #2a5298; }
+button {
+    width: 100%; padding: 9px; margin-top: 10px; border: none;
+    background: #2a5298; color: white; border-radius: 5px;
+    cursor: pointer; font-size: 15px; transition: background 0.2s;
+}
+button:hover { background: #1e3c72; }
+.switch { margin-top: 10px; text-align: center; font-size: 13px; }
+.switch span { color: #2a5298; cursor: pointer; font-weight: bold; }
+.switch span:hover { text-decoration: underline; }
+.error-msg {
+    color: #e53935; font-size: 12px; text-align: center;
+    margin-top: 6px; min-height: 16px; display: none;
+}
+.error-msg.show { display: block; }
+.success-msg {
+    color: #2FAE2E; font-size: 12px; text-align: center;
+    margin-top: 6px; min-height: 16px; display: none;
+}
+.success-msg.show { display: block; }
+@keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+}
+.shake { animation: shake 0.4s ease; border-color: #e53935 !important; }
+.btn-loading { opacity: 0.8; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="brand">
+    <h1 style="font-size:28px; color:#2FAE2E; margin:0;">Fruitzone</h1>
+</div>
+
+<div class="container">
+    <div class="card" id="card">
+
+        <!-- LOGIN (FRONT) -->
+        <div class="front">
+            <h2>Login</h2>
+            <form method="post" id="loginForm" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
+                <input type="email" name="email" id="loginEmail"
+                       placeholder="Email" autocomplete="email"
+                       value="{{ login_email|default:'' }}">
+                <input type="password" name="password" id="loginPassword"
+                       placeholder="Password" autocomplete="current-password">
+                <div class="error-msg {% if login_error %}show{% endif %}" id="loginError">
+                    {{ login_error|default:"Please enter a valid email and password." }}
+                </div>
+                <div class="success-msg {% if signup_success %}show{% endif %}" id="loginSuccess">
+                    {{ signup_success }}
+                </div>
+                <button type="submit" id="loginBtn">Login</button>
+            </form>
+            <div class="switch">
+                Don't have an account? <span onclick="flipCard()">Sign Up</span>
+            </div>
+        </div>
+
+        <!-- SIGNUP (BACK) -->
+        <div class="back">
+            <h2>Sign Up</h2>
+            <form method="post" id="signupForm" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="signup">
+                <input type="text"     name="name"     id="signupName"
+                       placeholder="Full Name" autocomplete="name"
+                       value="{{ signup_name|default:'' }}">
+                <input type="email"    name="email"    id="signupEmail"
+                       placeholder="Email" autocomplete="email"
+                       value="{{ signup_email|default:'' }}">
+                <input type="password" name="password" id="signupPassword"
+                       placeholder="Password" autocomplete="new-password">
+                <input type="password" name="confirm"  id="signupConfirm"
+                       placeholder="Confirm Password" autocomplete="new-password">
+                <div class="error-msg {% if signup_error %}show{% endif %}" id="signupError">
+                    {{ signup_error }}
+                </div>
+                <button type="submit" id="signupBtn">Sign Up</button>
+            </form>
+            <div class="switch">
+                Already have an account? <span onclick="flipCard()">Login</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function flipCard() {
+    document.getElementById('card').classList.toggle('flip');
+    hideMsg('loginError'); hideMsg('loginSuccess'); hideMsg('signupError');
+}
+function showMsg(id) { document.getElementById(id).classList.add('show'); }
+function hideMsg(id) { document.getElementById(id).classList.remove('show'); }
+function shakeInput(el) {
+    el.classList.add('shake');
+    el.addEventListener('animationend', () => el.classList.remove('shake'), { once: true });
+}
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()); }
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const emailEl = document.getElementById('loginEmail');
+    const passEl  = document.getElementById('loginPassword');
+    const errorEl = document.getElementById('loginError');
+    hideMsg('loginError');
+    if (!isValidEmail(emailEl.value)) {
+        e.preventDefault();
+        errorEl.textContent = 'Please enter a valid email address.';
+        showMsg('loginError'); shakeInput(emailEl); emailEl.focus(); return;
+    }
+    if (!passEl.value) {
+        e.preventDefault();
+        errorEl.textContent = 'Please enter your password.';
+        showMsg('loginError'); shakeInput(passEl); passEl.focus(); return;
+    }
+    document.getElementById('loginBtn').textContent = 'Logging in…';
+    document.getElementById('loginBtn').classList.add('btn-loading');
+});
+
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    const nameEl    = document.getElementById('signupName');
+    const emailEl   = document.getElementById('signupEmail');
+    const passEl    = document.getElementById('signupPassword');
+    const confirmEl = document.getElementById('signupConfirm');
+    const errorEl   = document.getElementById('signupError');
+    hideMsg('signupError');
+    if (nameEl.value.trim().length < 2) {
+        e.preventDefault(); errorEl.textContent = 'Please enter your full name.';
+        showMsg('signupError'); shakeInput(nameEl); return;
+    }
+    if (!isValidEmail(emailEl.value)) {
+        e.preventDefault(); errorEl.textContent = 'Please enter a valid email address.';
+        showMsg('signupError'); shakeInput(emailEl); return;
+    }
+    if (passEl.value.length < 6) {
+        e.preventDefault(); errorEl.textContent = 'Password must be at least 6 characters.';
+        showMsg('signupError'); shakeInput(passEl); return;
+    }
+    if (passEl.value !== confirmEl.value) {
+        e.preventDefault(); errorEl.textContent = 'Passwords do not match.';
+        showMsg('signupError'); shakeInput(confirmEl); return;
+    }
+    document.getElementById('signupBtn').textContent = 'Creating…';
+    document.getElementById('signupBtn').classList.add('btn-loading');
+});
+
+// Auto-flip to signup side if server returned signup error
+(function() {
+    if ("{{ active_side }}" === 'signup') {
+        document.getElementById('card').classList.add('flip');
+    }
+})();
+
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const flipped = document.getElementById('card').classList.contains('flip');
+    if (flipped) document.getElementById('signupForm').requestSubmit();
+    else          document.getElementById('loginForm').requestSubmit();
+});
+</script>
+</body>
+</html>

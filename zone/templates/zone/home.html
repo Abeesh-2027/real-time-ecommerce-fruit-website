@@ -1,0 +1,302 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruitzone - Fresh Organic Fruits</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--green:#2FAE2E;--green-dark:#239022;--green-light:#e8f8e8;--black:#111;--white:#fff;--shadow:0 4px 24px rgba(0,0,0,.10)}
+        html{scroll-behavior:smooth}
+        body{font-family:'Poppins',sans-serif;color:#333;background:#fff;overflow-x:hidden}
+        header{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.07);position:fixed;top:0;left:0;right:0;z-index:1000;height:66px}
+        nav{display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto;padding:0 28px;height:100%;gap:16px}
+        .logo{color:var(--green);font-family:'Playfair Display',serif;font-size:26px;font-weight:700;white-space:nowrap}
+        .nav-links{list-style:none;display:flex;gap:36px;align-items:center}
+        .nav-links a{color:var(--black);text-decoration:none;font-size:15px;font-weight:500;transition:color .2s;position:relative}
+        .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:var(--green);transition:width .3s}
+        .nav-links a:hover,.nav-links a.active{color:var(--green)}
+        .nav-links a:hover::after,.nav-links a.active::after{width:100%}
+        .nav-buttons{display:flex;gap:10px;align-items:center}
+        .btn{background:var(--green);color:#fff;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;transition:background .2s,transform .15s;white-space:nowrap;text-decoration:none;display:inline-block}
+        .btn:hover{background:var(--green-dark);transform:translateY(-1px)}
+        .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none}
+        .hamburger span{display:block;width:26px;height:2.5px;background:var(--black);border-radius:2px;transition:all .3s}
+        .hamburger.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+        .hamburger.open span:nth-child(2){opacity:0}
+        .hamburger.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+        .mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:20px 28px 28px;z-index:999;flex-direction:column;animation:slideDown .25s ease}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+        .mobile-menu.open{display:flex}
+        .mobile-menu a{display:block;padding:13px 0;color:var(--black);text-decoration:none;font-size:16px;font-weight:500;border-bottom:1px solid #eee;transition:color .2s}
+        .mobile-menu a:last-of-type{border-bottom:none}
+        .mobile-menu a:hover{color:var(--green)}
+        .mobile-menu-buttons{display:flex;gap:10px;margin-top:16px}
+        .mobile-menu-buttons .btn{flex:1;text-align:center}
+        main{padding-top:66px}
+        section{scroll-margin-top:80px}
+        .hero{background:linear-gradient(120deg,#f8fff8 60%,#d4f5d4 100%);min-height:90vh;display:flex;align-items:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:-80px;right:-80px;width:420px;height:420px;background:radial-gradient(circle,#b6eeaf55 0%,transparent 70%);border-radius:50%;pointer-events:none}
+        .hero-inner{max-width:1400px;margin:0 auto;padding:60px 28px;display:flex;align-items:center;gap:40px;width:100%}
+        .hero-text{flex:1}
+        .hero-text h1{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,58px);line-height:1.15;color:var(--black);margin-bottom:20px}
+        .hero-text h1 span{color:var(--green)}
+        .hero-text p{font-size:clamp(14px,1.8vw,18px);color:#555;line-height:1.7;margin-bottom:36px;max-width:480px}
+        .hero-text .btn{font-size:16px;padding:14px 36px;border-radius:12px;box-shadow:0 4px 16px rgba(47,174,46,.3)}
+        .hero-image{flex:1;display:flex;justify-content:center;align-items:center}
+        .hero-image img{max-width:100%;max-height:440px;object-fit:contain;filter:drop-shadow(0 16px 40px rgba(47,174,46,.18));animation:float 3.5s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+        .products{padding:70px 28px;background:#fff}
+        .section-title{text-align:center;margin-bottom:46px}
+        .section-title h2{font-family:'Playfair Display',serif;font-size:clamp(26px,4vw,40px);color:var(--black);margin-bottom:8px}
+        .section-title p{color:#777;font-size:15px}
+        .section-title .underline{width:60px;height:4px;background:var(--green);border-radius:2px;margin:12px auto 0}
+        .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;max-width:1400px;margin:0 auto}
+        .product-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s;text-align:center}
+        .product-card:hover{transform:translateY(-8px);box-shadow:0 12px 40px rgba(47,174,46,.15)}
+        .product-card .img-wrap{height:200px;overflow:hidden;background:var(--green-light)}
+        .product-card .img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+        .product-card:hover .img-wrap img{transform:scale(1.07)}
+        .product-card h3{font-size:18px;font-weight:700;padding:16px 12px 6px;color:var(--black)}
+        .product-card .btn{margin:4px auto 20px;display:inline-block;font-size:13px;padding:8px 24px;border-radius:8px}
+        .about{padding:70px 28px;background:var(--green-light)}
+        .about-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:60px}
+        .about-text{flex:1.4}
+        .about-text h2{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);color:var(--black);margin-bottom:18px}
+        .about-text h2 span{color:var(--green)}
+        .about-text p{font-size:15px;color:#444;line-height:1.8;margin-bottom:16px}
+        .about-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+        .badge{background:#fff;border:1.5px solid var(--green);color:var(--green);padding:7px 16px;border-radius:40px;font-size:13px;font-weight:600}
+        .about-image{flex:1;text-align:center}
+        .about-image img{max-width:100%;max-height:360px;object-fit:contain;filter:drop-shadow(0 8px 30px rgba(0,0,0,.10))}
+        .services{padding:70px 28px;background:#fff}
+        .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;max-width:1400px;margin:0 auto}
+        .service-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:32px 20px;text-align:center;transition:transform .3s,box-shadow .3s}
+        .service-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 36px rgba(47,174,46,.13)}
+        .service-card .icon-wrap{width:90px;height:90px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:40px}
+        .service-card h4{font-size:16px;font-weight:700;color:var(--black);margin-bottom:6px}
+        .service-card p{font-size:13px;color:#777}
+        .contact{padding:70px 28px;background:var(--green-light)}
+        .contact-inner{max-width:1100px;margin:0 auto;display:flex;gap:48px;align-items:flex-start}
+        .contact-form{flex:1.4}
+        .contact-form input,.contact-form textarea{display:block;width:100%;padding:13px 18px;border:1.5px solid #ddd;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;margin-bottom:16px;outline:none;background:#fff;transition:border-color .2s}
+        .contact-form input:focus,.contact-form textarea:focus{border-color:var(--green)}
+        .contact-form textarea{height:140px;resize:vertical}
+        .contact-form .btn{width:100%;font-size:15px;padding:13px;border-radius:10px}
+        .contact-info{flex:1;display:flex;flex-direction:column;gap:18px}
+        .info-card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+        .info-card h5{font-size:14px;font-weight:700;color:var(--green);margin-bottom:6px}
+        .info-card p{font-size:14px;color:#555}
+        .form-msg{font-size:13px;text-align:center;margin-top:-8px;margin-bottom:10px;display:none}
+        .form-msg.show{display:block}
+        .form-msg.success{color:#2FAE2E}
+        .form-msg.error{color:#e53935}
+        footer{background:#111;color:#fff;padding:50px 28px 28px}
+        .footer-inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding-bottom:32px;border-bottom:1px solid #333}
+        .footer-col h3{font-family:'Playfair Display',serif;color:var(--green);font-size:22px;margin-bottom:14px}
+        .footer-col p{color:#aaa;font-size:14px;line-height:1.7}
+        .footer-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+        .footer-links a{color:#aaa;text-decoration:none;font-size:14px;transition:color .2s}
+        .footer-links a:hover{color:var(--green)}
+        .footer-bottom{text-align:center;padding-top:22px;color:#555;font-size:13px;max-width:1400px;margin:0 auto}
+        @media(max-width:1024px){.products-grid{grid-template-columns:repeat(2,1fr)}.services-grid{grid-template-columns:repeat(2,1fr)}.nav-links{gap:22px}}
+        @media(max-width:768px){.nav-links,.nav-buttons{display:none}.hamburger{display:flex}.hero{min-height:auto}.hero-inner{flex-direction:column-reverse;padding:40px 20px 50px;gap:24px;text-align:center}.hero-text p{margin:0 auto 28px}.hero-image img{max-height:240px}.products,.about,.services,.contact{padding:50px 16px}.products-grid,.services-grid{grid-template-columns:repeat(2,1fr);gap:16px}.about-inner,.contact-inner{flex-direction:column;gap:28px}.footer-inner{grid-template-columns:1fr;gap:28px}}
+        @media(max-width:420px){.products-grid,.services-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <div class="logo">Fruitzone</div>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <a href="{% url 'zone:view' %}" class="btn">View Orders</a>
+            <a href="{% url 'zone:cart' %}"   class="btn">🛒 Cart</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#home"     onclick="closeMenu()">Home</a>
+    <a href="#products" onclick="closeMenu()">Products</a>
+    <a href="#about"    onclick="closeMenu()">About</a>
+    <a href="#services" onclick="closeMenu()">Services</a>
+    <a href="#contact"  onclick="closeMenu()">Contact</a>
+    <div class="mobile-menu-buttons">
+        <a href="{% url 'zone:view' %}" class="btn">View Orders</a>
+        <a href="{% url 'zone:cart' %}"   class="btn">🛒 Cart</a>
+    </div>
+</div>
+
+<main>
+    <!-- HERO -->
+    <section id="home" class="hero">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <h1>SuperMarket Daily<br><span>Fresh Grocery</span></h1>
+                <p>Fresh fruits delivered directly to your doorstep from local farms.</p>
+                <a href="{% url 'zone:product' %}" class="btn">Shop Now →</a>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'images/fruit.png' %}" alt="Fresh Fruits"
+                     onerror="this.src='https://placehold.co/400x380/e8f8e8/2FAE2E?text=🍎+Fresh+Fruits'">
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS PREVIEW -->
+    <section id="products" class="products">
+        <div class="section-title">
+            <h2>Fresh Organic Fruits</h2>
+            <p>Handpicked from local farms, delivered to your home</p>
+            <div class="underline"></div>
+        </div>
+        <div class="products-grid">
+            {% for item in products_preview %}
+            <div class="product-card">
+                <div class="img-wrap">
+                    <img src="{% static item.img %}" alt="{{ item.name }}"
+                         onerror="this.src='https://placehold.co/400x200/e8f8e8/2FAE2E?text={{ item.name }}'">
+                </div>
+                <h3>{{ item.name }}</h3>
+                <a href="{% url 'zone:product' %}" class="btn">View More</a>
+            </div>
+            {% empty %}
+            <div class="product-card">
+                <div class="img-wrap"><img src="https://placehold.co/400x200/e8f8e8/2FAE2E?text=Apple" alt="Apple"></div>
+                <h3>Apple</h3><a href="{% url 'zone:product' %}" class="btn">View More</a>
+            </div>
+            <div class="product-card">
+                <div class="img-wrap"><img src="https://placehold.co/400x200/e8f8e8/2FAE2E?text=Mango" alt="Mango"></div>
+                <h3>Mango</h3><a href="{% url 'zone:product' %}" class="btn">View More</a>
+            </div>
+            <div class="product-card">
+                <div class="img-wrap"><img src="https://placehold.co/400x200/e8f8e8/2FAE2E?text=Orange" alt="Orange"></div>
+                <h3>Orange</h3><a href="{% url 'zone:product' %}" class="btn">View More</a>
+            </div>
+            <div class="product-card">
+                <div class="img-wrap"><img src="https://placehold.co/400x200/e8f8e8/2FAE2E?text=Grapes" alt="Grapes"></div>
+                <h3>Grapes</h3><a href="{% url 'zone:product' %}" class="btn">View More</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about">
+        <div class="about-inner">
+            <div class="about-text">
+                <h2>About <span>Fruitzone</span></h2>
+                <p>Welcome to <strong>Fruitzone</strong>, your trusted source for the freshest and healthiest fruits. We are passionate about delivering high-quality, farm-fresh fruits directly to your doorstep.</p>
+                <p>Our mission is to promote a healthy lifestyle by providing naturally grown, chemical-free fruits rich in nutrients. We work closely with local farmers to ensure every fruit is handpicked with care.</p>
+                <p>From juicy mangoes to crisp apples and seasonal delights — fresh, hygienic, and affordable.</p>
+                <div class="about-badges">
+                    <span class="badge">🌱 Fresh &amp; Organic</span>
+                    <span class="badge">🚚 Fast Delivery</span>
+                    <span class="badge">🧺 Wide Variety</span>
+                    <span class="badge">💚 Quality Assured</span>
+                </div>
+            </div>
+            <div class="about-image">
+                <img src="{% static 'images/services.png' %}" alt="About Fruitzone"
+                     onerror="this.src='https://placehold.co/360x300/e8f8e8/2FAE2E?text=🌿+Fruitzone'">
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="services">
+        <div class="section-title">
+            <h2>Our Services</h2>
+            <p>Everything you need for a seamless shopping experience</p>
+            <div class="underline"></div>
+        </div>
+        <div class="services-grid">
+            <div class="service-card"><div class="icon-wrap">🚚</div><h4>Free Shipping</h4><p>Free on orders over ₹300</p></div>
+            <div class="service-card"><div class="icon-wrap">🔒</div><h4>Secure Payment</h4><p>100% security payment</p></div>
+            <div class="service-card"><div class="icon-wrap">🔄</div><h4>30-Day Return</h4><p>30 day money back guarantee</p></div>
+            <div class="service-card"><div class="icon-wrap">📞</div><h4>24/7 Support</h4><p>Support every time, fast</p></div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+        <div class="section-title">
+            <h2>Contact Us</h2>
+            <p>We'd love to hear from you</p>
+            <div class="underline"></div>
+        </div>
+        <div class="contact-inner">
+            <div class="contact-form">
+                <form method="post" action="{% url 'zone:contact' %}" id="contactForm" novalidate>
+                    {% csrf_token %}
+                    <input type="text"  name="contact_name"    id="contactName"
+                           placeholder="Enter your name" value="{{ contact_name|default:'' }}">
+                    <input type="email" name="contact_email"   id="contactEmail"
+                           placeholder="Enter your email" value="{{ contact_email|default:'' }}">
+                    <textarea name="contact_message" id="contactMessage"
+                              placeholder="Enter your message">{{ contact_message|default:'' }}</textarea>
+                    {% if contact_success %}<div class="form-msg success show">{{ contact_success }}</div>{% endif %}
+                    {% if contact_error   %}<div class="form-msg error   show">{{ contact_error }}</div>{% endif %}
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
+            <div class="contact-info">
+                <div class="info-card"><h5>📍 Address</h5><p>123 Main Street, Chennai, India</p></div>
+                <div class="info-card"><h5>✉️ Mail Us</h5><p>support@fruitzone.com</p></div>
+                <div class="info-card"><h5>📞 Telephone</h5><p>+91 1234567890</p></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-col"><h3>Fruitzone</h3><p>Fresh &amp; Healthy Fruits.<br>Delivered to your home with love.</p></div>
+        <div class="footer-col">
+            <h3>Quick Links</h3>
+            <div class="footer-links">
+                <a href="#home">Home</a><a href="#products">Products</a>
+                <a href="#about">About</a><a href="#services">Services</a><a href="#contact">Contact</a>
+            </div>
+        </div>
+        <div class="footer-col"><h3>Contact Us</h3><p>123 Main Street, Chennai, India<br>support@fruitzone.com<br>+91 1234567890</p></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; 2026 Fruitzone. All rights reserved.</p></div>
+</footer>
+
+<script>
+const hamburger   = document.getElementById('hamburger');
+const mobileMenu  = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+});
+function closeMenu() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+}
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    document.querySelectorAll('.nav-links a').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+});
+</script>
+</body>
+</html>

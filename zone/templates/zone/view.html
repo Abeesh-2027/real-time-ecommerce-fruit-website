@@ -1,0 +1,359 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruitzone - My Orders</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --green: #2FAE2E; --green-dark: #239022; --green-light: #e8f8e8; --shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f4; min-height: 100vh; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: sticky; top:0; z-index:100; }
+        .logo { font-size: 26px; font-weight: bold; color: var(--green); flex: 1; text-decoration: none; }
+        .nav-right { display: flex; gap: 10px; }
+        .btn-back { padding: 9px 18px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; text-decoration: none; display: inline-block; }
+        .btn-back:hover { background: #222; }
+        .btn-cart { padding: 9px 18px; background: var(--green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.2s; text-decoration: none; display: inline-block; }
+        .btn-cart:hover { background: var(--green-dark); }
+
+        /* ── PAGE ── */
+        .page { max-width: 800px; margin: 36px auto; padding: 0 18px 60px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .page-title { font-size: 26px; font-weight: 800; color: #111; }
+        .order-count { font-size: 13px; color: #888; background: white; border-radius: 20px; padding: 6px 14px; box-shadow: var(--shadow); }
+
+        /* ── EMPTY STATE ── */
+        .empty-orders { background: white; border-radius: 20px; box-shadow: var(--shadow); padding: 80px 30px; text-align: center; }
+        .empty-orders .e-icon { font-size: 64px; margin-bottom: 16px; }
+        .empty-orders h2 { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 10px; }
+        .empty-orders p { font-size: 15px; color: #888; margin-bottom: 24px; }
+        .btn-shop { padding: 13px 30px; background: var(--green); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-shop:hover { background: var(--green-dark); }
+
+        /* ── FILTER BAR ── */
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid #ddd; background: white; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background: var(--green); border-color: var(--green); color: white; }
+        .filter-btn:hover:not(.active) { border-color: var(--green); color: var(--green); }
+
+        /* ── ORDER CARDS ── */
+        .orders-list { display: flex; flex-direction: column; gap: 18px; }
+        .order-card { background: white; border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; transition: box-shadow 0.2s; animation: fadeIn 0.35s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .order-card:hover { box-shadow: 0 8px 28px rgba(47,174,46,0.13); }
+
+        .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1.5px solid #f5f5f5; flex-wrap: wrap; gap: 10px; }
+        .card-order-id { font-size: 15px; font-weight: 800; color: #111; }
+        .card-date { font-size: 12px; color: #aaa; }
+
+        /* ── STATUS BADGES ── */
+        .status-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .status-badge.confirmed { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.delivered { background: #e3f2fd; color: #1565c0; }
+        .status-badge.cancelled { background: #fce4ec; color: #c62828; }
+        .status-badge.pending   { background: #fff8e1; color: #f57f17; }
+
+        /* ── CARD BODY ── */
+        .card-body { padding: 18px 20px; }
+        .card-items-preview { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .item-thumb { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .item-thumb img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: var(--green-light); border: 2px solid #f0f0f0; }
+        .item-thumb-more { width: 52px; height: 52px; border-radius: 10px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #888; border: 2px solid #e0e0e0; }
+        .item-thumb-name { font-size: 10px; color: #888; text-align: center; max-width: 52px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+        .meta-item { display: flex; flex-direction: column; gap: 2px; }
+        .meta-label { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+        .meta-value { font-size: 14px; color: #111; font-weight: 600; }
+        .meta-value.green { color: var(--green); }
+
+        /* ── CARD FOOTER ── */
+        .card-footer { display: flex; gap: 10px; padding: 14px 20px; background: #fafafa; border-top: 1.5px solid #f5f5f5; flex-wrap: wrap; }
+        .btn-detail { flex: 1; min-width: 120px; padding: 10px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .btn-detail.primary { background: var(--green); color: white; border: none; }
+        .btn-detail.primary:hover { background: var(--green-dark); }
+        .btn-detail.outline { background: white; color: #555; border: 1.5px solid #ddd; }
+        .btn-detail.outline:hover { border-color: var(--green); color: var(--green); }
+        .btn-detail.danger { background: white; color: #e53935; border: 1.5px solid #f0f0f0; }
+        .btn-detail.danger:hover { border-color: #e53935; }
+
+        /* ── DETAIL PANEL ── */
+        .detail-panel { display: none; padding: 0 20px 20px; }
+        .detail-panel.open { display: block; }
+        .detail-divider { border: none; border-top: 1.5px solid #f0f0f0; margin-bottom: 18px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .detail-field label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+        .detail-field p { font-size: 13px; color: #111; line-height: 1.5; }
+        .items-full { margin-top: 12px; }
+        .items-full-title { font-size: 12px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .full-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+        .full-item:last-child { border-bottom: none; }
+        .full-item img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: var(--green-light); flex-shrink: 0; }
+        .fi-name { flex: 1; font-size: 13px; font-weight: 600; color: #111; }
+        .fi-qty { font-size: 12px; color: #888; }
+        .fi-price { font-size: 13px; font-weight: 700; color: var(--green); }
+        .price-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+        .price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #111; margin-top: 10px; padding-top: 10px; border-top: 1.5px solid #eee; }
+        .price-total span:last-child { color: var(--green); }
+
+        /* ── CANCEL MODAL ── */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 18px; padding: 32px; max-width: 400px; width: 90%; text-align: center; animation: popIn 0.3s ease; }
+        @keyframes popIn { from { transform:scale(0.85); opacity:0; } to { transform:scale(1); opacity:1; } }
+        .modal h3 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 10px; }
+        .modal p { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.6; }
+        .modal-btns { display: flex; gap: 12px; }
+        .modal-btns button { flex: 1; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .modal-cancel  { background: #f5f5f5; color: #444; border: none; }
+        .modal-confirm { background: #e53935; color: white; border: none; }
+        .modal-confirm:hover { background: #c62828; }
+
+        /* ── TOAST ── */
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #111; color: white; padding: 12px 26px; border-radius: 30px; font-size: 14px; font-weight: 600; z-index: 9999; transition: transform 0.35s ease, opacity 0.35s; opacity: 0; pointer-events: none; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ── FOOTER ── */
+        footer { text-align: center; padding: 18px; background: black; color: white; font-size: 13px; margin-top: 48px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) { .detail-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="{% url 'zone:home' %}">Fruitzone</a>
+    <div class="nav-right">
+        <a class="btn-back" href="{% url 'zone:product' %}">← Continue Shopping</a>  <!-- FIX: was zone:products -->
+        <a class="btn-cart" href="{% url 'zone:cart' %}">🛒 Cart</a>
+    </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+    <div class="page-header">
+        <div class="page-title">📦 My Orders</div>
+        <div class="order-count" id="orderCount">0 orders</div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filterBar" style="display:none;">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All Orders</button>
+        <button class="filter-btn" onclick="setFilter('confirmed', this)">Confirmed</button>
+        <button class="filter-btn" onclick="setFilter('delivered', this)">Delivered</button>
+        <button class="filter-btn" onclick="setFilter('cancelled', this)">Cancelled</button>
+    </div>
+
+    <!-- ORDERS CONTAINER -->
+    <div id="ordersContainer"></div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="modal-overlay" id="cancelModal">
+    <div class="modal">
+        <h3>Cancel Order?</h3>
+        <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
+        <div class="modal-btns">
+            <button class="modal-cancel" onclick="closeModal()">Keep Order</button>
+            <button class="modal-confirm" onclick="confirmCancel()">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer><p>&copy; 2026 Fruitzone. All rights reserved.</p></footer>
+
+<script>
+    /* ── Django URL references ── */
+    const URLS = {
+        products: "{% url 'zone:product' %}",  /* FIX: was zone:products */
+        cart:     "{% url 'zone:cart' %}",
+    };
+
+    function getOrders() { return JSON.parse(localStorage.getItem('fruitzone_orders') || '[]'); }
+    function saveOrders(o) { localStorage.setItem('fruitzone_orders', JSON.stringify(o)); }
+
+    let currentFilter = 'all';
+    let cancelTarget  = null;
+    let toastTimer;
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function setFilter(f, btn) {
+        currentFilter = f;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderOrders();
+    }
+
+    function payLabel(m) {
+        return { upi: 'UPI', card: 'Card', netbanking: 'Net Banking', cod: 'Cash on Delivery' }[m] || m;
+    }
+    function statusCls(s) {
+        return { confirmed: 'confirmed', delivered: 'delivered', cancelled: 'cancelled' }[s] || 'pending';
+    }
+    function statusLbl(s) {
+        return { confirmed: '✅ Confirmed', delivered: '📬 Delivered', cancelled: '❌ Cancelled', pending: '⏳ Pending' }[s] || s;
+    }
+
+    function renderOrders() {
+        const orders    = getOrders();
+        const container = document.getElementById('ordersContainer');
+        const countEl   = document.getElementById('orderCount');
+        const filterBar = document.getElementById('filterBar');
+        container.innerHTML = '';
+
+        if (orders.length === 0) {
+            filterBar.style.display = 'none';
+            countEl.textContent = '0 orders';
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <div class="e-icon">📦</div>
+                    <h2>No orders yet</h2>
+                    <p>You haven't placed any orders. Start shopping for fresh fruits!</p>
+                    <a class="btn-shop" href="${URLS.product}">Shop Now</a>
+                </div>`;
+            return;
+        }
+
+        filterBar.style.display = 'flex';
+        const filtered = currentFilter === 'all' ? orders : orders.filter(o => o.status === currentFilter);
+        countEl.textContent = orders.length + ' order' + (orders.length !== 1 ? 's' : '');
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="background:white;border-radius:16px;padding:60px 20px;text-align:center;color:#aaa;box-shadow:var(--shadow);">
+                    <div style="font-size:40px;margin-bottom:12px;">🔍</div>
+                    <p style="font-size:16px;font-weight:600;">No ${currentFilter} orders</p>
+                </div>`;
+            return;
+        }
+
+        filtered.forEach(order => {
+            const date    = new Date(order.date);
+            const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const preview = order.items.slice(0, 3);
+            const extra   = order.items.length - 3;
+            const canCancel = order.status === 'confirmed';
+
+            const div = document.createElement('div');
+            div.className = 'order-card';
+            div.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <div class="card-order-id">#${order.id}</div>
+                        <div class="card-date">${dateStr} at ${timeStr}</div>
+                    </div>
+                    <div class="status-badge ${statusCls(order.status)}">${statusLbl(order.status)}</div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-items-preview">
+                        ${preview.map(item => `
+                            <div class="item-thumb">
+                                <img src="${item.img}" alt="${item.name}"
+                                     onerror="this.src='https://placehold.co/52x52/e8f8e8/2FAE2E?text=${encodeURIComponent(item.name)}'">
+                                <span class="item-thumb-name">${item.name}</span>
+                            </div>`).join('')}
+                        ${extra > 0 ? `<div class="item-thumb"><div class="item-thumb-more">+${extra}</div><span class="item-thumb-name">more</span></div>` : ''}
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><span class="meta-label">Items</span><span class="meta-value">${order.items.length} item${order.items.length !== 1 ? 's' : ''}</span></div>
+                        <div class="meta-item"><span class="meta-label">Total</span><span class="meta-value green">₹${order.total}</span></div>
+                        <div class="meta-item"><span class="meta-label">Payment</span><span class="meta-value">${payLabel(order.payMethod)}</span></div>
+                        <div class="meta-item"><span class="meta-label">Delivery</span><span class="meta-value">${order.delivery === 0 ? 'FREE' : '₹' + order.delivery}</span></div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn-detail primary" onclick="toggleDetails('detail-${order.id}')">📋 View Details</button>
+                    ${canCancel ? `<button class="btn-detail danger" onclick="openCancelModal('${order.id}')">✕ Cancel</button>` : ''}
+                    <button class="btn-detail outline" onclick="window.location.href='${URLS.product}'">🛒 Reorder</button>
+                </div>
+
+                <div class="detail-panel" id="detail-${order.id}">
+                    <hr class="detail-divider">
+                    <div class="detail-grid">
+                        <div class="detail-field"><label>Customer</label><p>${order.customer.name}</p></div>
+                        <div class="detail-field"><label>Phone</label><p>${order.customer.phone}</p></div>
+                        <div class="detail-field"><label>Email</label><p>${order.customer.email}</p></div>
+                        <div class="detail-field"><label>Payment</label><p>${payLabel(order.payMethod)}</p></div>
+                        <div class="detail-field" style="grid-column:1/-1"><label>Delivery Address</label><p>${order.customer.address}</p></div>
+                        ${order.customer.notes ? `<div class="detail-field" style="grid-column:1/-1"><label>Notes</label><p>${order.customer.notes}</p></div>` : ''}
+                        ${order.razorpay?.payment_id ? `<div class="detail-field" style="grid-column:1/-1"><label>Payment ID</label><p style="font-size:12px;word-break:break-all;">${order.razorpay.payment_id}</p></div>` : ''}
+                    </div>
+                    <div class="items-full">
+                        <div class="items-full-title">Items Ordered</div>
+                        ${order.items.map(item => `
+                            <div class="full-item">
+                                <img src="${item.img}" alt="${item.name}"
+                                     onerror="this.src='https://placehold.co/40x40/e8f8e8/2FAE2E?text=${encodeURIComponent(item.name)}'">
+                                <div class="fi-name">${item.name}<div class="fi-qty">${item.qty} kg</div></div>
+                                <div class="fi-price">₹${item.price * item.qty}</div>
+                            </div>`).join('')}
+                        <div style="margin-top:12px;">
+                            <div class="price-row"><span>Subtotal</span><span>₹${order.subtotal}</span></div>
+                            <div class="price-row"><span>Delivery</span><span>${order.delivery === 0 ? 'FREE' : '₹' + order.delivery}</span></div>
+                            <div class="price-total"><span>Total</span><span>₹${order.total}</span></div>
+                        </div>
+                    </div>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    function toggleDetails(id) {
+        const panel = document.getElementById(id);
+        const btn   = panel.previousElementSibling.querySelector('.btn-detail.primary');
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            btn.textContent = '📋 View Details';
+        } else {
+            panel.classList.add('open');
+            btn.textContent = '▲ Hide Details';
+        }
+    }
+
+    function openCancelModal(orderId) {
+        cancelTarget = orderId;
+        document.getElementById('cancelModal').classList.add('open');
+    }
+    function closeModal() {
+        cancelTarget = null;
+        document.getElementById('cancelModal').classList.remove('open');
+    }
+    function confirmCancel() {
+        if (!cancelTarget) return;
+        const orders = getOrders();
+        const idx    = orders.findIndex(o => o.id === cancelTarget);
+        if (idx !== -1) {
+            orders[idx].status = 'cancelled';
+            saveOrders(orders);
+            showToast('Order #' + cancelTarget + ' cancelled');
+        }
+        cancelTarget = null;
+        document.getElementById('cancelModal').classList.remove('open');
+        renderOrders();
+    }
+
+    document.getElementById('cancelModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    renderOrders();
+</script>
+</body>
+</html>

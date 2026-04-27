@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruitzone - Order Confirmed!</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --green: #2FAE2E; --green-dark: #239022; --green-light: #e8f8e8; --shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f4; min-height: 100vh; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .logo { font-size: 26px; font-weight: bold; color: var(--green); flex: 1; text-decoration: none; }
+
+        /* ── CONFETTI ── */
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+
+        /* ── PAGE ── */
+        .page { max-width: 680px; margin: 40px auto; padding: 0 18px 60px; }
+
+        /* ── SUCCESS HERO ── */
+        .success-hero { background: white; border-radius: 20px; box-shadow: var(--shadow); padding: 44px 32px; text-align: center; margin-bottom: 24px; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .check-anim { width: 90px; height: 90px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 44px; animation: popIn 0.6s cubic-bezier(.36,.07,.19,.97) 0.2s both; }
+        @keyframes popIn { 0% { transform:scale(0); opacity:0; } 60% { transform:scale(1.15); } 100% { transform:scale(1); opacity:1; } }
+        .success-title { font-size: 28px; font-weight: 800; color: #111; margin-bottom: 8px; }
+        .success-sub { font-size: 15px; color: #666; margin-bottom: 24px; line-height: 1.6; }
+        .order-id-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--green-light); border: 1.5px solid #b8e6b8; border-radius: 30px; padding: 10px 22px; font-size: 14px; color: var(--green-dark); font-weight: 700; margin-bottom: 6px; }
+
+        /* ── DELIVERY TIMELINE ── */
+        .delivery-steps { background: white; border-radius: 16px; box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 24px; animation: slideUp 0.5s ease 0.15s both; }
+        .ds-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 18px; }
+        .timeline { display: flex; flex-direction: column; gap: 0; }
+        .tl-item { display: flex; gap: 16px; position: relative; }
+        .tl-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:32px; bottom:-4px; width:2px; background:#e0e0e0; }
+        .tl-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; z-index: 1; }
+        .tl-dot.pending { background: #f0f0f0; }
+        .tl-content { flex: 1; padding-bottom: 20px; }
+        .tl-label { font-size: 14px; font-weight: 700; color: #111; }
+        .tl-time { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+        /* ── ORDER DETAILS ── */
+        .order-details { background: white; border-radius: 16px; box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px; animation: slideUp 0.5s ease 0.25s both; }
+        .od-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid #f0f0f0; }
+        .od-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+        .od-field label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+        .od-field p { font-size: 14px; color: #111; font-weight: 500; line-height: 1.4; }
+
+        /* ── ITEMS LIST ── */
+        .items-list { border-top: 1.5px solid #f0f0f0; padding-top: 16px; }
+        .items-list-title { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .order-item { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .order-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--green-light); flex-shrink: 0; }
+        .oi-name { flex: 1; font-size: 14px; font-weight: 600; color: #111; }
+        .oi-qty { font-size: 12px; color: #888; }
+        .oi-price { font-size: 14px; font-weight: 700; color: var(--green); }
+
+        /* ── PRICE BREAKDOWN ── */
+        .price-breakdown { background: #fafafa; border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+        .pb-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 8px; }
+        .pb-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #111; margin-top: 10px; padding-top: 10px; border-top: 1.5px solid #e0e0e0; }
+        .pb-total span:last-child { color: var(--green); }
+
+        /* ── ACTION BUTTONS ── */
+        .actions { display: flex; gap: 12px; animation: slideUp 0.5s ease 0.35s both; }
+        .btn-primary { flex: 1; padding: 14px; background: var(--green); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        .btn-primary:hover { background: var(--green-dark); }
+        .btn-outline { flex: 1; padding: 14px; background: white; color: #444; border: 1.5px solid #ddd; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+        /* ── FOOTER ── */
+        footer { text-align: center; padding: 18px; background: black; color: white; font-size: 13px; margin-top: 48px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) { .od-grid { grid-template-columns: 1fr; } .actions { flex-direction: column; } }
+    </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="{% url 'zone:home' %}">Fruitzone</a>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+    <!-- SUCCESS HERO -->
+    <div class="success-hero">
+        <div class="check-anim">✓</div>
+        <div class="success-title">Order Confirmed! 🎉</div>
+        <div class="success-sub">Thank you for your order! Your fresh fruits are being packed<br>and will be delivered to your doorstep soon.</div>
+        <div class="order-id-badge" id="orderIdBadge">📦 Order #FZ00000000</div>
+    </div>
+
+    <!-- DELIVERY TIMELINE -->
+    <div class="delivery-steps">
+        <div class="ds-title">🚚 Delivery Status</div>
+        <div class="timeline">
+            <div class="tl-item">
+                <div class="tl-dot">✓</div>
+                <div class="tl-content">
+                    <div class="tl-label">Order Placed</div>
+                    <div class="tl-time" id="orderTime">Just now</div>
+                </div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot">🧺</div>
+                <div class="tl-content">
+                    <div class="tl-label">Packing in Progress</div>
+                    <div class="tl-time">Within 30 minutes</div>
+                </div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot pending">🛵</div>
+                <div class="tl-content">
+                    <div class="tl-label">Out for Delivery</div>
+                    <div class="tl-time">Today, 2–4 hours</div>
+                </div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot pending">🏠</div>
+                <div class="tl-content">
+                    <div class="tl-label">Delivered</div>
+                    <div class="tl-time" id="etaTime">Estimated by evening</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDER DETAILS -->
+    <div class="order-details">
+        <div class="od-title">📋 Order Details</div>
+        <div class="od-grid">
+            <div class="od-field"><label>Customer Name</label><p id="detName">—</p></div>
+            <div class="od-field"><label>Phone</label><p id="detPhone">—</p></div>
+            <div class="od-field"><label>Email</label><p id="detEmail">—</p></div>
+            <div class="od-field"><label>Payment</label><p id="detPay">—</p></div>
+            <div class="od-field" style="grid-column:1/-1"><label>Delivery Address</label><p id="detAddress">—</p></div>
+            <div class="od-field" id="notesField" style="grid-column:1/-1; display:none;"><label>Delivery Notes</label><p id="detNotes">—</p></div>
+            <div class="od-field" id="rzpField" style="grid-column:1/-1; display:none;"><label>Payment ID</label><p id="detRzp" style="font-size:12px;word-break:break-all;">—</p></div>
+        </div>
+        <div class="items-list">
+            <div class="items-list-title">Items Ordered</div>
+            <div id="orderItemsList"></div>
+            <div class="price-breakdown">
+                <div class="pb-row"><span>Subtotal</span><span id="pbSubtotal">₹0</span></div>
+                <div class="pb-row"><span>Delivery</span><span id="pbDelivery">₹0</span></div>
+                <div class="pb-total"><span>Total Paid</span><span id="pbTotal">₹0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+        <a class="btn-primary" href="{% url 'zone:view' %}">📦 View All Orders</a>
+        <a class="btn-outline" href="{% url 'zone:product' %}">🛒 Continue Shopping</a>
+    </div>
+
+</div>
+
+<footer><p>&copy; 2026 Fruitzone. All rights reserved.</p></footer>
+
+<script>
+    const order = JSON.parse(localStorage.getItem('fruitzone_last_order') || 'null');
+
+    const PRODUCTS_URL = '{% url "zone:product" %}';
+
+    function payLabel(m) {
+        return { upi: 'UPI Payment', card: 'Card Payment', netbanking: 'Net Banking', cod: 'Cash on Delivery' }[m] || m;
+    }
+
+    function renderOrder() {
+        if (!order) {
+            document.querySelector('.page').innerHTML = `
+                <div style="text-align:center;padding:80px 20px;color:#aaa;">
+                    <div style="font-size:48px;margin-bottom:16px;">😕</div>
+                    <p style="font-size:18px;margin-bottom:24px;">No order found.</p>
+                    <a href="${PRODUCTS_URL}"
+                       style="padding:12px 28px;background:#2FAE2E;color:white;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;display:inline-block;">
+                        Shop Now
+                    </a>
+                </div>`;
+            return;
+        }
+
+        document.getElementById('orderIdBadge').textContent = '📦 Order #' + order.id;
+        document.getElementById('detName').textContent    = order.customer.name;
+        document.getElementById('detPhone').textContent   = order.customer.phone;
+        document.getElementById('detEmail').textContent   = order.customer.email;
+        document.getElementById('detPay').textContent     = payLabel(order.payMethod);
+        document.getElementById('detAddress').textContent = order.customer.address;
+
+        const d = new Date(order.date);
+        document.getElementById('orderTime').textContent = d.toLocaleString('en-IN', {
+            hour: '2-digit', minute: '2-digit', hour12: true, day: 'numeric', month: 'short'
+        });
+        const eta = new Date(d.getTime() + 4 * 3600000);
+        document.getElementById('etaTime').textContent = 'By ' + eta.toLocaleTimeString('en-IN', {
+            hour: '2-digit', minute: '2-digit', hour12: true
+        });
+
+        if (order.customer.notes) {
+            document.getElementById('notesField').style.display = '';
+            document.getElementById('detNotes').textContent = order.customer.notes;
+        }
+        if (order.razorpay?.payment_id) {
+            document.getElementById('rzpField').style.display = '';
+            document.getElementById('detRzp').textContent = order.razorpay.payment_id;
+        }
+
+        const list = document.getElementById('orderItemsList');
+        order.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'order-item';
+            div.innerHTML = `
+                <img src="${item.img}" alt="${item.name}"
+                     onerror="this.src='https://placehold.co/48x48/e8f8e8/2FAE2E?text=${encodeURIComponent(item.name)}'">
+                <div class="oi-name">${item.name}<div class="oi-qty">${item.qty} kg</div></div>
+                <div class="oi-price">₹${item.price * item.qty}</div>`;
+            list.appendChild(div);
+        });
+
+        document.getElementById('pbSubtotal').textContent = `₹${order.subtotal}`;
+        document.getElementById('pbDelivery').textContent = order.delivery === 0 ? 'FREE 🎉' : `₹${order.delivery}`;
+        document.getElementById('pbTotal').textContent    = `₹${order.total}`;
+    }
+
+    renderOrder();
+
+    /* ── Confetti ── */
+    (function () {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx    = canvas.getContext('2d');
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const colors = ['#2FAE2E','#FFD600','#FF5722','#00BCD4','#E91E63','#8BC34A'];
+        const pieces = Array.from({ length: 120 }, () => ({
+            x:     Math.random() * canvas.width,
+            y:    -10 - Math.random() * 200,
+            w:     8  + Math.random() * 8,
+            h:     4  + Math.random() * 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speed: 2  + Math.random() * 3,
+            angle: Math.random() * Math.PI * 2,
+            spin:  (Math.random() - 0.5) * 0.15,
+            drift: (Math.random() - 0.5) * 1.2
+        }));
+        let frame = 0;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+                ctx.fillStyle   = p.color;
+                ctx.globalAlpha = Math.max(0, 1 - frame / 200);
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+                p.y += p.speed; p.x += p.drift; p.angle += p.spin;
+            });
+            frame++;
+            if (frame < 220) requestAnimationFrame(draw);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        draw();
+    })();
+</script>
+</body>
+</html>
