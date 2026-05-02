@@ -8,7 +8,7 @@ login.html
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(7).png)
 home.html
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(22).png)
-![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(73).png)
+![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(23).png)
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(24).png)
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(25).png)
 ![image alt](https://github.com/Abeesh-2027/real-time-ecommerce-fruit-website/blob/bb82bc7033841fece6e46b5b0a1e73db1520c47e/Screenshot%20(26).png)
